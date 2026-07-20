@@ -87,7 +87,7 @@ where
     let stream_results: StreamReadReply =
       self
         .redis
-        .xread_options(&[&self.stream], &[&self.next_pos], opts)?;
+        .xread_options(&[&self.stream], &[&self.next_pos], &opts)?;
 
     if !stream_results.keys.is_empty() {
       let stream = &stream_results.keys[0];
@@ -232,7 +232,7 @@ mod tests {
   #[allow(clippy::unnecessary_wraps)]
   fn print_message(_id: &str, message: &Message) -> Result<()> {
     for (k, v) in message {
-      println!("{}: {}", k, String::from_redis_value(&v).unwrap());
+      println!("{}: {}", k, String::from_redis_value(v.clone()).unwrap());
     }
     Ok(())
   }
@@ -303,7 +303,8 @@ mod tests {
         let mut consumer = Consumer::init(&mut redis_c, stream, handler, opts).unwrap();
 
         consumer.consume().unwrap();
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_1".to_string());
       }
 
@@ -326,7 +327,8 @@ mod tests {
 
         consumer.consume().unwrap();
         child.join().unwrap();
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_2".to_string());
       }
     }
@@ -357,7 +359,8 @@ mod tests {
         // skip the error so we can check for pending messages in next test
         consumer.consume().unwrap_or(());
         child.join().unwrap();
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_3".to_string());
       }
 
@@ -375,7 +378,8 @@ mod tests {
         let mut consumer = Consumer::init(&mut redis_c, stream, handler, opts).unwrap();
         // skip the error so we can check pending messages are skipped in next test
         consumer.consume().unwrap_or(());
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_3".to_string());
       }
 
@@ -392,7 +396,8 @@ mod tests {
           .process_pending(false);
         let mut consumer = Consumer::init(&mut redis_c, stream, handler, opts).unwrap();
         consumer.consume().unwrap();
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_4".to_string());
       }
 
@@ -409,7 +414,8 @@ mod tests {
           .process_pending(true);
         let mut consumer = Consumer::init(&mut redis_c, stream, handler, opts).unwrap();
         consumer.consume().unwrap();
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_3".to_string());
 
         let mut messages = vec![];
@@ -442,13 +448,17 @@ mod tests {
           .process_pending(false);
         let mut consumer = Consumer::init(&mut redis_c, stream, handler, opts).unwrap();
         consumer.consume().unwrap();
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_4".to_string());
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_3".to_string());
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_2".to_string());
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_1".to_string());
 
         delete_group(stream, group_name);
@@ -465,13 +475,17 @@ mod tests {
           .process_pending(true);
         let mut consumer = Consumer::init(&mut redis_c, stream, handler, opts).unwrap();
         consumer.consume().unwrap();
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_4".to_string());
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_3".to_string());
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_2".to_string());
-        let value = String::from_redis_value(messages.pop().unwrap().get("key").unwrap()).unwrap();
+        let value =
+          String::from_redis_value(messages.pop().unwrap().get("key").unwrap().clone()).unwrap();
         assert_eq!(value, "value_1".to_string());
       }
 

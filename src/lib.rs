@@ -98,8 +98,8 @@ pub fn produce(
 
 #[cfg(test)]
 pub mod test_helpers {
-  use rand::distributions::Alphanumeric;
-  use rand::{thread_rng, Rng};
+  use rand::rng;
+  use rand::{distr::Alphanumeric, RngExt};
   use redis::{Commands, Connection, RedisResult};
 
   pub fn delete_stream(stream: &str) {
@@ -121,7 +121,7 @@ pub mod test_helpers {
   }
 
   pub fn random_string(n: usize) -> String {
-    thread_rng()
+    rng()
       .sample_iter(&Alphanumeric)
       .take(n)
       .map(char::from)
